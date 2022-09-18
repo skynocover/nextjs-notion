@@ -153,6 +153,38 @@ export const NotionPage: React.FC<types.PageProps> = ({
   error,
   pageId
 }) => {
+  let tags = []
+
+  if (site && site.rootNotionPageId !== pageId.replaceAll('-', '')) {
+    const temp: any = { ...recordMap }
+    const { collection, block } = temp
+    if (collection && block) {
+      let tagsName = ''
+      for (const [k1, v1] of Object.entries(collection)) {
+        if (v1.value.name[0][0] === 'Blog Posts') {
+          for (const [k2, v2] of Object.entries(v1.value.schema)) {
+            if (v2.name === 'Tags') {
+              tagsName = k2
+              break
+            }
+          }
+        }
+      }
+      for (const [k1, v1] of Object.entries(block)) {
+        if (v1.value.type === 'page') {
+          for (const [k2, v2] of Object.entries(v1.value.properties)) {
+            if (k2 === tagsName) {
+              // console.log(v2)
+              tags = v2[0][0].split(',')
+              break
+            }
+          }
+        }
+      }
+    }
+    // console.log({ tags })
+  }
+
   const router = useRouter()
   const lite = useSearchParam('lite')
 
@@ -217,13 +249,13 @@ export const NotionPage: React.FC<types.PageProps> = ({
 
   const title = getBlockTitle(block, recordMap) || site.name
 
-  console.log('notion page', {
-    isDev: config.isDev,
-    title,
-    pageId,
-    rootNotionPageId: site.rootNotionPageId,
-    recordMap
-  })
+  // console.log('notion page', {
+  //   isDev: config.isDev,
+  //   title,
+  //   pageId,
+  //   rootNotionPageId: site.rootNotionPageId,
+  //   recordMap
+  // })
 
   if (!config.isServer) {
     // add important objects to the window global for easy debugging
@@ -257,6 +289,16 @@ export const NotionPage: React.FC<types.PageProps> = ({
         image={socialImage}
         url={canonicalPageUrl}
       />
+
+      <ul style={{ position: 'fixed', zIndex: 1000 }}>
+        {tags.map((tag) => (
+          <li key={tag}>
+            <Link href={`/tags/${tag}`}>
+              <a>{tag}</a>
+            </Link>
+          </li>
+        ))}
+      </ul>
 
       {isLiteMode && <BodyClassName className='notion-lite' />}
       {isDarkMode && <BodyClassName className='dark-mode' />}
