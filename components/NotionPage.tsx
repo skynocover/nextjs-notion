@@ -160,7 +160,7 @@ export const NotionPage: React.FC<types.PageProps> = ({
     const { collection, block } = temp
     if (collection && block) {
       let tagsName = ''
-      for (const [k1, v1] of Object.entries(collection)) {
+      for (const [, v1] of Object.entries(collection)) {
         if (v1.value.name[0][0] === 'Blog Posts') {
           for (const [k2, v2] of Object.entries(v1.value.schema)) {
             if (v2.name === 'Tags') {
@@ -170,11 +170,10 @@ export const NotionPage: React.FC<types.PageProps> = ({
           }
         }
       }
-      for (const [k1, v1] of Object.entries(block)) {
+      for (const [, v1] of Object.entries(block)) {
         if (v1.value.type === 'page') {
           for (const [k2, v2] of Object.entries(v1.value.properties)) {
             if (k2 === tagsName) {
-              // console.log(v2)
               tags = v2[0][0].split(',')
               break
             }
